@@ -1,7 +1,13 @@
 package model;
 
-public class pasajeroVO {
+import java.io.Serializable;
 
+public class pasajeroVO implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int idPasajero;
 	String nombre;
 	int edad;
