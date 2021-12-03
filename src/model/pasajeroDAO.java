@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -102,6 +103,8 @@ public class pasajeroDAO {
 		}
 		return pasajeros;
 	}
+	
+	
 
 	public ArrayList<pasajeroVO> cargarPasajeros()
 
@@ -158,4 +161,69 @@ public class pasajeroDAO {
 		return pasajeros;
 	}
 
+	
+	public boolean modificarPasajero(pasajeroVO pasajero, boolean modBussiness)
+
+	{
+		// Variables
+		int numMod=-1;
+		String query = "";
+		PreparedStatement pStmt;
+		boolean modCorrecto= false;
+		
+
+		// Conectamos a la base de datos
+		Connection con = ConexionBD.conectarBD();
+
+		try {
+
+			
+			query = "UPDATE pasajeros SET";
+			
+			//Añadimos al update los campos a modificar
+			if (pasajero.getDni()!=null)
+				query= query + " dni='" +pasajero.getDni() +"'";
+			
+			if (pasajero.getEdad()!=0)
+				query= query + " edad=" +pasajero.getEdad();
+
+			if (pasajero.getNombre()!=null)
+				query= query + " nombre='" +pasajero.getNombre() +"'";
+			
+			if (modBussiness)
+				query= query + " bussiness=" +pasajero.isBusiness();
+			query = query + " WHERE idpasajero=? ";
+			
+			//Añadimos el id pasajero al preparedStatement
+			pStmt = con.prepareStatement(query);
+			
+			pStmt.setInt(1, pasajero.getIdPasajero());
+			//Ejecutamos la query
+			numMod = pStmt.executeUpdate();
+			
+			//Si nos devuelve 1 pasajero modificado
+			//Ha ido todo bien
+			if (numMod==1)
+				modCorrecto=true;
+			
+		
+			pStmt.close();
+			
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		
+		}
+		// Cerramos las conexiones activas
+		try {
+			
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return modCorrecto;
+	}
+	
 }

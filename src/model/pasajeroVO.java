@@ -23,6 +23,10 @@ public class pasajeroVO implements Serializable {
 		this.business = business;
 	}
 
+	public pasajeroVO() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public int getIdPasajero() {
 		return idPasajero;
 	}
