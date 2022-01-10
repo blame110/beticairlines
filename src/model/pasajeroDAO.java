@@ -11,6 +11,104 @@ import utils.ConexionBD;
 
 public class pasajeroDAO {
 
+	/**
+	 * Función que inserta en BD un pasajero, no comprueba que los datos sean correctos
+	 * deben de estar comprobados previamente a llamar a esta función. 
+	 * @param pasajeroVO con los datos cargados
+	 * @return -1 si ha habido fallo al insertar el registro
+	 */
+	public int guardarPasajero(pasajeroVO pasajero)
+	{
+		// Variables
+		
+		String query = "";
+		//Por defecto ponemos el valor de fallo
+		int resultado =-1;
+		PreparedStatement pStmt;
+
+		// Conectamos a la base de datos
+		Connection con = ConexionBD.conectarBD();
+
+		try {
+
+			query = "INSERT INTO `pasajeros` (`nombre`, `edad`, `dni`, `bussiness`) VALUES (?,?,?,?)";
+					
+			//Añadimos el id pasajero al preparedStatement
+			pStmt = con.prepareStatement(query);
+			
+			//Cargamos los datos a la query
+			pStmt.setString(1, pasajero.getNombre());
+			pStmt.setInt(2, pasajero.getEdad());
+			pStmt.setString(3, pasajero.getDni());
+			pStmt.setBoolean(4, pasajero.isBusiness());
+
+			//Ejecutamos la query
+			resultado = pStmt.executeUpdate();
+	
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resultado=-1;
+			return resultado;
+		}
+		// Cerramos las conexiones activas
+		try {
+			pStmt.close();
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+
+	
+	/**
+	 * Función que recibe un identificador de pasajero y lo elimina de la BD
+	 * @param idPasajero
+	 * @return -1 si ha habido fallo
+	 */
+	public static int eliminarPasajero(int idPasajero)
+	{
+		// Variables
+		
+		String query = "";
+		//Por defecto ponemos el valor de fallo
+		int resultado =-1;
+		PreparedStatement pStmt;
+
+		// Conectamos a la base de datos
+		Connection con = ConexionBD.conectarBD();
+
+		try {
+
+	
+			query = "DELETE FROM PASAJEROS WHERE idpasajeros = ?";
+			
+			pStmt = con.prepareStatement(query);
+
+			pStmt.setInt(1, idPasajero);
+			
+			resultado = pStmt.executeUpdate();		
+			
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resultado=-1;
+			return resultado;
+		}
+		// Cerramos las conexiones activas
+		try {
+			pStmt.close();
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return resultado;
+	}
+
 	public pasajeroVO cargarPasajero(int idPasajero)
 
 	{
@@ -170,6 +268,7 @@ public class pasajeroDAO {
 		String query = "";
 		PreparedStatement pStmt;
 		boolean modCorrecto= false;
+		boolean anterior=false;
 		
 
 		// Conectamos a la base de datos
@@ -182,17 +281,36 @@ public class pasajeroDAO {
 			
 			//Añadimos al update los campos a modificar
 			if (pasajero.getDni()!=null)
+			{
 				query= query + " dni='" +pasajero.getDni() +"'";
+				anterior=true;
+			}
+			
 			
 			if (pasajero.getEdad()!=0)
+			{
+				if (anterior) query= query + " , ";
+				else anterior=true;
 				query= query + " edad=" +pasajero.getEdad();
 
+			}
 			if (pasajero.getNombre()!=null)
+			{
+				if (anterior) query= query + " , ";
+				else anterior=true;
 				query= query + " nombre='" +pasajero.getNombre() +"'";
+				
+			}
 			
 			if (modBussiness)
+			{
+				if (anterior) query= query + " , ";
+				else anterior=true;
+	
 				query= query + " bussiness=" +pasajero.isBusiness();
-			query = query + " WHERE idpasajero=? ";
+			}
+			
+			query = query + " WHERE idpasajeros=? ";
 			
 			//Añadimos el id pasajero al preparedStatement
 			pStmt = con.prepareStatement(query);
